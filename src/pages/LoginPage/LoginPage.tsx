@@ -1,8 +1,38 @@
-import React from 'react';
+import { z } from 'zod';
+import { FormBuilder } from '../../components/FormBuilder/FormBuilder';
+import { loginSchema } from '../../schemas/authSchema';
+import { loginConfig } from '../../lib/config/authConfig';
 
-const LoginPage: React.FC = () => {
 
-    return <div>LoginPage</div>;
-};
+export default function LoginPage() {
+    const handleLogin = (data: z.infer<typeof loginSchema>) => {
+        // Handle login logic here
+        console.log('Login data:', data);
+    };
 
-export default LoginPage;
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-threadly-background font-threadly text-threadly-text px-4">
+            <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-2xl shadow-xl border border-threadly-secondary">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold text-threadly-primary">Welcome to Threadly</h1>
+                    <p className="mt-2 text-sm text-threadly-muted">Your personalized social experience</p>
+                </div>
+
+                <div>
+                    <h2 className="text-center text-xl font-semibold text-threadly-text">log in to your account</h2>
+                </div>
+
+                <FormBuilder schema={loginSchema} config={loginConfig} onSubmit={handleLogin} />
+
+
+                <p className="text-center text-sm text-threadly-muted">
+                    Don't have an account?{' '}
+                    <a href="/login" className="text-threadly-primary hover:underline">
+                        Sign up
+                    </a>
+                </p>
+            </div>
+        </div>
+
+    );
+}

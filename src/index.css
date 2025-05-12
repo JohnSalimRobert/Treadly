@@ -1,7 +1,19 @@
 @import "tailwindcss";
 
+
 :root {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+
+@theme {
+  --color-threadly-primary: #7C3AED;
+  --color-threadly-secondary: #E0D4FF;
+  --color-threadly-accent: #FACC15;
+  --color-threadly-background: #FAF9FF;
+  --color-threadly-text: #1E1B4B;
+  --color-threadly-muted: #A1A1AA;
+  --font-threadly: 'Inter', sans-serif;
 }

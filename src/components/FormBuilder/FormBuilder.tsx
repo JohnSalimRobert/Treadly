@@ -1,101 +1,70 @@
-import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+// FormBuilder.tsx
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { FormBuilderProps } from '../../types/formBuilderTypes';
+import type { DefaultValues } from 'react-hook-form';
 
-// Define form type as a union of valid form keys
-type FormType = "login" | "signup" | "createPost";
-
-// Define schemas
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address").nonempty("Email is required"),
-  password: z.string().min(6, "Password must be at least 6 characters").nonempty("Password is required"),
-});
-
-const signupSchema = z.object({
-  username: z.string().nonempty("Username is required"),
-  email: z.string().email("Invalid email address").nonempty("Email is required"),
-  password: z.string().min(6, "Password must be at least 6 characters").nonempty("Password is required"),
-});
-
-const createPostSchema = z.object({
-  description: z.string().nonempty("Description is required"),
-  image: z
-    .any()
-    .refine((file) => file instanceof File || file === undefined, "Invalid image file")
-    .optional(),
-});
-
-const formSchemas: Record<FormType, any> = {
-  login: loginSchema,
-  signup: signupSchema,
-  createPost: createPostSchema,
-};
-
-// Field configuration
-const formFields: Record<FormType, { name: string; label: string; type: string }[]> = {
-  login: [
-    { name: "email", label: "Email", type: "email" },
-    { name: "password", label: "Password", type: "password" },
-  ],
-  signup: [
-    { name: "username", label: "Username", type: "text" },
-    { name: "email", label: "Email", type: "email" },
-    { name: "password", label: "Password", type: "password" },
-  ],
-  createPost: [
-    { name: "description", label: "Description", type: "text" },
-    { name: "image", label: "Image", type: "file" },
-  ],
-};
-
-interface FormBuilderProps {
-  formType: FormType;
-  onSubmit: (data: any) => void;
-}
-
-const FormBuilder: React.FC<FormBuilderProps> = ({ formType, onSubmit }) => {
+export function FormBuilder<T extends Record<string, any>>({
+  schema,
+  config,
+  onSubmit,
+  defaultValues,
+}: FormBuilderProps<T>) {
   const {
-    control,
+    register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(formSchemas[formType]),
+  } = useForm<T>({
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues as DefaultValues<T>, // force-cast to satisfy RHF
   });
 
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {formFields[formType].map((field, index) => (
-        <div key={index} style={{ marginBottom: "15px" }}>
-          <label>{field.label}</label>
-          <Controller
-            name={field.name as any}
-            control={control}
-            render={({ field: controllerField }) => {
-              if (field.type === "file") {
-                return (
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      controllerField.onChange(file);
-                    }}
-                  />
-                );
-              }
-              return <input {...controllerField} type={field.type} />;
-            }}
-          />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {config.map((field) => (
+        <div key={field.name as string} className="space-y-1">
+          <label htmlFor={field.name} className="block text-sm font-medium text-threadly-text">
+            {field.label}
+          </label>
+
+          {field.type === 'textarea' ? (
+            <textarea
+              id={field.name}
+              {...register(field.name)}
+              placeholder={field.placeholder}
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-sm focus:border-threadly-primary focus:ring-threadly-primary"
+            />
+          ) : field.type === 'file' ? (
+            <input
+              id={field.name}
+              type="file"
+              accept={field.accept}
+              {...register(field.name)}
+              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-threadly-primary file:text-white hover:file:bg-threadly-primary/90"
+            />
+          ) : (
+            <input
+              id={field.name}
+              type={field.type}
+              placeholder={field.placeholder}
+              {...register(field.name)}
+              className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 text-sm focus:border-threadly-primary focus:ring-threadly-primary"
+            />
+          )}
+
           {errors[field.name] && (
-            <span style={{ color: "red" }}>
-              {(errors as any)[field.name]?.message}
-            </span>
+            <p className="mt-1 text-sm text-red-600">{String(errors[field.name]?.message)}</p>
           )}
         </div>
       ))}
-      <button type="submit">Submit</button>
+
+      <button
+        type="submit"
+        className="w-full py-2 px-4 bg-threadly-primary text-white font-medium rounded-md hover:bg-threadly-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-threadly-primary"
+      >
+        Submit
+      </button>
     </form>
   );
-};
-
-export default FormBuilder;
+}
