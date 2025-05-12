@@ -1,10 +1,16 @@
 import { z } from 'zod';
 import { FormBuilder } from '../../components/FormBuilder/FormBuilder';
 import { loginSchema } from '../../schemas/authSchema';
-import { loginConfig } from '../../lib/config/authConfig';
-
+import { loginConfig } from '../../config/authConfig';
+import { useNavigate } from "react-router";
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+
+    const navigateToSignup = () => {
+        navigate('/signup');
+    }
+
     const handleLogin = (data: z.infer<typeof loginSchema>) => {
         // Handle login logic here
         console.log('Login data:', data);
@@ -27,9 +33,9 @@ export default function LoginPage() {
 
                 <p className="text-center text-sm text-threadly-muted">
                     Don't have an account?{' '}
-                    <a href="/login" className="text-threadly-primary hover:underline">
+                    <span onClick={navigateToSignup} className="text-threadly-primary hover:underline">
                         Sign up
-                    </a>
+                    </span>
                 </p>
             </div>
         </div>
