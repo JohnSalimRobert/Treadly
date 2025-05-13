@@ -1,8 +1,13 @@
-import { z } from 'zod';
+import { set, z } from 'zod';
 import { FormBuilder } from '../../components/FormBuilder/FormBuilder';
 import { signupSchema } from '../../schemas/authSchema';
 import { signupConfig } from '../../config/authConfig';
 import { useNavigate } from 'react-router-dom';
+import { signup } from '../../services/authService';
+import { uploadImages } from '../../lib/cloudnary/uploadImages';
+import { normalizeCloudinaryUrls } from '../../utils/normalizeUploadResult';
+import toast from 'react-hot-toast';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 
 export default function SignupPage() {
@@ -12,9 +17,43 @@ export default function SignupPage() {
         navigate('/login');
     }
 
-    const handleLogin = (data: z.infer<typeof signupSchema>) => {
+    const handleSignup = async (data: z.infer<typeof signupSchema>) => {
         // Handle login logic here
-        console.log('Login data:', data);
+       try{
+           const rawFiles = data.profilePicture;
+           const filesToUpload = Array.isArray(rawFiles) ? rawFiles : Array.from(rawFiles); 
+           const uploadResult = await uploadImages(filesToUpload)
+           const normalizedProfilePicure = normalizeCloudinaryUrls(uploadResult, filesToUpload.length > 1); 
+           
+           const payload = {
+                ...data,
+                profilePicture: normalizedProfilePicure,
+           }
+           const response: any = await toast.promise(
+               signup(payload),
+               {
+                   loading: "Signing up...",
+                   success: "Successfully signed up!",
+                   error: (error) => {
+                       console.error("Error signing up:", error);
+                       if(error.response.data.message){
+                        return error.response.data.message;
+                       }
+                       return "Error signing up. Please try again.";
+                   }
+                }
+           ).finally(() => {
+            toast.dismiss();
+           })
+           if(!!response.token){
+               useAuthStore.setState({ user: response.user, token: response.token });
+               navigate('/');
+            }
+        } catch (error) {
+            console.error("Error signing up:", error);
+            // Handle error (e.g., show a notification)
+        }
+
     };
 
     return (
@@ -27,7 +66,7 @@ export default function SignupPage() {
                     </p>
                 </div>
 
-                <FormBuilder schema={signupSchema} config={signupConfig} onSubmit={handleLogin} />
+                <FormBuilder schema={signupSchema} config={signupConfig} onSubmit={handleSignup} />
 
                 <p className="text-center text-sm text-threadly-muted">
                     Already have an account?{' '}

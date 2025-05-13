@@ -46,6 +46,7 @@ export const signupConfig: FormFieldConfig<SignupFormType>[] = [
     label: 'Profile Picture',
     type: 'file',
     accept: 'image/*',
+    multiple: false ,
     placeholder: '',
   },
 ];

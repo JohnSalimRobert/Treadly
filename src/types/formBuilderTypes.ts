@@ -10,6 +10,7 @@ export interface FormFieldConfig<T> {
   type: FieldType;
   placeholder?: string;
   accept?: string;
+  multiple?: boolean;
 }
 
 export interface FormBuilderProps<T extends Record<string, any>> {

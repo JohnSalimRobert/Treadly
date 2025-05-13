@@ -40,6 +40,7 @@ export function FormBuilder<T extends Record<string, any>>({
               id={field.name}
               type="file"
               accept={field.accept}
+              multiple={field.multiple}
               {...register(field.name)}
               className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-threadly-primary file:text-white hover:file:bg-threadly-primary/90"
             />

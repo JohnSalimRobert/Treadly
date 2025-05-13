@@ -7,7 +7,7 @@ type ProtectedRouteProps = {
   }
 
 const ProtectedRoute = ({children}: ProtectedRouteProps) => {
-    const isAuth =  useAuthStore(state => state.isAuthenticated())
+    const isAuth =  useAuthStore.getState().isAuthenticated
     return isAuth ? children : <Navigate to='/login' />
 }
 

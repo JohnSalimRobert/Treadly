@@ -3,7 +3,8 @@ import axiosService from "../lib/axios";
 
 
 export interface AuthCredentials {
-  username: string;
+  username?: string;
+  email?: string;
   password: string;
   bio?: string;
   profilePic?: string;

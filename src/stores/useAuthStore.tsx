@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-type User = {
-  name: string;
+export type User = {
+  username: string;
+  email: string;
   profilePic?: string;
   bio?: string;
   // Extend this with your API user schema

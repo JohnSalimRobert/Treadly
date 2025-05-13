@@ -4,7 +4,7 @@ import type { AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } fr
 import { useAuthStore } from '../stores/useAuthStore';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+console.log("BASE_URL", BASE_URL);
 class AxiosService {
     private instance: AxiosInstance;
 

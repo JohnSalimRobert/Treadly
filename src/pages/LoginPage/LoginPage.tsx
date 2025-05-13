@@ -3,6 +3,9 @@ import { FormBuilder } from '../../components/FormBuilder/FormBuilder';
 import { loginSchema } from '../../schemas/authSchema';
 import { loginConfig } from '../../config/authConfig';
 import { useNavigate } from "react-router";
+import toast from 'react-hot-toast';
+import { login } from '../../services/authService';
+import { useAuthStore } from '../../stores/useAuthStore';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -11,9 +14,31 @@ export default function LoginPage() {
         navigate('/signup');
     }
 
-    const handleLogin = (data: z.infer<typeof loginSchema>) => {
-        // Handle login logic here
-        console.log('Login data:', data);
+    const handleLogin = async (data: z.infer<typeof loginSchema>) => {
+        const payload = {
+            ...data
+        }
+        const response: any = await toast.promise(
+            login(payload),
+            {
+                loading: "Logging in...",
+                success: "Successfully logged in!",
+                error: (error) => {
+                    console.error("Error logging in:", error);
+                    if (error.response.data.message) {
+                        return error.response.data.message;
+                    }
+                    return "Error logging in. Please try again.";
+                }
+            }
+        ).finally(() => {
+            toast.dismiss();
+        }
+        );
+        if(!!response.token){
+            useAuthStore.getState().login( response.token, response.user);
+            navigate('/');
+        }
     };
 
     return (
