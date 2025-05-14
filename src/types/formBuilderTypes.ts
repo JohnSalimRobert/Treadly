@@ -18,4 +18,5 @@ export interface FormBuilderProps<T extends Record<string, any>> {
   config: FormFieldConfig<T>[];
   onSubmit: SubmitHandler<T>;
   defaultValues?: DefaultValues<T>;
+  buttonText?: string;
 }

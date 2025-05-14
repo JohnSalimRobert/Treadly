@@ -25,6 +25,7 @@ class AxiosService {
         this.instance.interceptors.request.use(
             (config: InternalAxiosRequestConfig) => {
                 const token = useAuthStore.getState().token;
+                console.log(token)
                 if (token && config.headers) {
                     config.headers['Authorization'] = `Bearer ${token}`;
                 }

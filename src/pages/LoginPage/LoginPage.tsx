@@ -36,6 +36,7 @@ export default function LoginPage() {
         }
         );
         if(!!response.token){
+            console.log("Login response:", response);
             useAuthStore.getState().login( response.token, response.user);
             navigate('/');
         }

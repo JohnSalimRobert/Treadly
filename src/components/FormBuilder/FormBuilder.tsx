@@ -9,6 +9,7 @@ export function FormBuilder<T extends Record<string, any>>({
   config,
   onSubmit,
   defaultValues,
+  buttonText = 'Submit',
 }: FormBuilderProps<T>) {
   const {
     register,
@@ -64,7 +65,7 @@ export function FormBuilder<T extends Record<string, any>>({
         type="submit"
         className="w-full py-2 px-4 bg-threadly-primary text-white font-medium rounded-md hover:bg-threadly-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-threadly-primary"
       >
-        Submit
+        {buttonText}
       </button>
     </form>
   );
