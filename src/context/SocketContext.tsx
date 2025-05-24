@@ -1,5 +1,5 @@
 // src/context/SocketContext.tsx or .js
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuthStore } from "../stores/useAuthStore";
 import type { ReactNode } from "react";
