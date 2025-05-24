@@ -18,11 +18,10 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL; // replace with your server 
 export const SocketContextProvider = ({ children }: { children: ReactNode }) => {
  const [socket, setSocket] = useState<ReturnType<typeof io> | null>(null);
 
-  const token = useAuthStore.getState().token;
-  const isAuthenticated = useAuthStore.getState().isAuthenticated;
+const token = useAuthStore(state => state.token);
 
   useEffect(() => {
-    if (isAuthenticated && token && !socket) {
+    if (token) {
       const newSocket = io(SOCKET_URL, {
         auth: {
           token: token, // or whatever your API uses to identify users
@@ -55,7 +54,7 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }) => 
         }
     }
 
-  }, [isAuthenticated, token]);
+  }, [ token]);
 
   return (
     <SocketContext.Provider value={{ socket }}>

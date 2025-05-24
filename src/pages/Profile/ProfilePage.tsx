@@ -1,6 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { fetchUser } from '../../services/userService';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { useNavigate } from 'react-router-dom';
 
 interface UserStats {
   postCount: number;
@@ -23,6 +25,7 @@ const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate()
 
   const fetchUserProfile = async () => {
     try {
@@ -38,6 +41,11 @@ const ProfilePage: React.FC = () => {
       setLoading(false);
     }
   };
+  
+  const handleLogout = () => {
+    useAuthStore.getState().logout()
+    navigate('/login');
+  }
 
   useEffect(() => {
     fetchUserProfile();
@@ -93,6 +101,9 @@ const ProfilePage: React.FC = () => {
             <p className="text-2xl font-bold">{stats?.totalLikesReceived ?? 0}</p>
           </div>
         </div>
+      <div className='flex items-center justify-center'>
+        <button className="m-4 py-2 px-4 bg-threadly-primary text-white font-medium rounded-md hover:bg-threadly-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-threadly-primary" onClick={handleLogout}>Logout</button>
+      </div>
       </div>
 
       {/* Fun footer */}
