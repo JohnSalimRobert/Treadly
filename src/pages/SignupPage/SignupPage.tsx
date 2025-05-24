@@ -29,6 +29,7 @@ export default function SignupPage() {
                 ...data,
                 profilePicture: normalizedProfilePicure,
            }
+           toast(`Signing up with email: ${payload.email}`)
            const response: any = await toast.promise(
                signup(payload),
                {

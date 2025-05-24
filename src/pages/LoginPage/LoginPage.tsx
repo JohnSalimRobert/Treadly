@@ -18,6 +18,7 @@ export default function LoginPage() {
         const payload = {
             ...data
         }
+        toast(`Logging in with email: ${payload.email}`);
         const response: any = await toast.promise(
             login(payload),
             {

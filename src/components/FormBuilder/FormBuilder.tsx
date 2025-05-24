@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { FormBuilderProps } from '../../types/formBuilderTypes';
 import type { DefaultValues } from 'react-hook-form';
+import toast from 'react-hot-toast';
 
 export function FormBuilder<T extends Record<string, any>>({
   schema,

@@ -1,22 +1,27 @@
+import type { Socket } from "socket.io-client";
+
+
 type PostUser ={
+    _id: string;
     username: string;
-    profilePic?: string;
+    profilePicture?: string;
 }
 
 type Comment = {
     id: string;
-    user: PostUser;
+    author: PostUser;
     content: string;
-    likes: number;
+    likes: string[];
 };
 
-type Post = {
-    id: string;
-    user: PostUser;
-    text: string;
+export type Post = {
+    _id: string;
+    author: PostUser;
+    caption: string;
     images: string[];
-    likes: number;
-    comments: Comment[];
+    likes: PostUser[];
+    comments?: Comment[];
+    isLikedByUser?: boolean;
 };
 
 export type PostCardProps = {
@@ -25,4 +30,6 @@ export type PostCardProps = {
     body?: React.ReactNode;
     footer?: React.ReactNode;
     post?: Post;
+    socket?: Socket| null;
+    handlePostUpdates?: (post: Post) => void;
 };

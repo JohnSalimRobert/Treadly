@@ -2,7 +2,7 @@
 import axiosService from "../lib/axios";
 
 
-export interface Post {
+interface Post {
   caption: string;
   images: string | string[];
 }
@@ -12,3 +12,10 @@ export const createPost = async (data: Post) => {
   return response.data;
 };
 
+export const fetchPosts = async ({ limit = 10, cursor }: { limit?: number; cursor?: string | null }) => {
+  const params: any = { limit };
+  if (cursor) params.cursor = cursor;
+
+  const response = await axiosService.get('/post/list', { params });
+  return response.data;
+};
