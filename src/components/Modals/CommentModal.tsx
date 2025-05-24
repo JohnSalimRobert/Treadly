@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { FormBuilder } from '../FormBuilder/FormBuilder';
 import type { Comment, CommentsModalProps } from '../../types/commentTypes';
-import { commentSchema, type CommentFormType } from '../../schemas/commentSchema';
+import { commentSchema } from '../../schemas/commentSchema';
 import { commentConfig } from '../../config/commentConfig';
 import { ThumbsUp } from 'lucide-react';
 import Timestamp from '../UI/Timestamp';

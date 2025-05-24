@@ -1,4 +1,4 @@
-import { set, z } from 'zod';
+import { z } from 'zod';
 import { FormBuilder } from '../../components/FormBuilder/FormBuilder';
 import { signupSchema } from '../../schemas/authSchema';
 import { signupConfig } from '../../config/authConfig';
