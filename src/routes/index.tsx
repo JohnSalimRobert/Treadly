@@ -4,6 +4,7 @@ import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
 import SignupPage from '../pages/SignupPage/SignupPage'
 import AppLayout from '../components/Layouts/AppLayout'
 import PostFeed from '../pages/PostFeed/PostFeed'
+import ProfilePage from '../pages/Profile/ProfilePage';
 
 
 const router = createBrowserRouter([
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
         index: true,
         element: <PostFeed />,
       },
+      {
+        path: '/profile',
+        element: <ProfilePage />
+      }
     ],
   },
   {

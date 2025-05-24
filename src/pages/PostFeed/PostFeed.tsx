@@ -4,52 +4,8 @@ import { fetchPosts } from '../../services/postService';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useSocketContext } from '../../context/SocketContext';
 import type { Post } from '../../types/postCardTypes';
+import type { Comment } from '../../types/commentTypes';
 
-// Dummy post data
-const dummyPosts = [
-  {
-    id: "1",
-    user: {
-      username: 'john_doe',
-      profilePic: 'https://i.pravatar.cc/100?img=1',
-    },
-    text: 'Had a great day exploring Tailwind v4!',
-    images: ['https://source.unsplash.com/random/300x300'],
-    likes: 23,
-    comments: [
-      {
-        id: "1",
-        user: { username: 'jane_smith' },
-        content: 'Looks awesome!',
-        likes: 10,
-      },
-      {
-        id: "2",
-        user: { username: 'dev_guy' },
-        content: 'Tailwind v4 is 🔥',
-        likes: 15,
-      },
-    ],
-  },
-  {
-    id: "2",
-    user: {
-      username: 'frontend_fan',
-      profilePic: 'https://i.pravatar.cc/100?img=2',
-    },
-    text: 'Working on a new UI kit. Feedback welcome!',
-    images: [],
-    likes: 17,
-    comments: [
-      {
-        id: "3",
-        user: { username: 'ui_critic' },
-        content: 'Share some previews!',
-        likes: 5,
-      },
-    ],
-  },
-];
 
 
 const PostFeed: React.FC = () => {
@@ -58,11 +14,9 @@ const PostFeed: React.FC = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  console.log(posts)
   const loadPosts = async () => {
     try {
       const res: any = await fetchPosts({ limit: 5, cursor });
-      console.log('Fetched posts:', res);
       setPosts((prev) => {
         const existingIds = new Set(prev.map(post => post._id));
         const newPosts = res.data.filter((post: any) => !existingIds.has(post._id));
@@ -75,16 +29,36 @@ const PostFeed: React.FC = () => {
     }
   };
 
+  
   const handlePostUpdates = (newPost: Post | undefined) => {
     if(!newPost) return;
     setPosts(prev => {
       const postIndex = prev.findIndex(curPost => curPost._id === newPost._id);
+      const updatedPosts = [...prev];
+      if (postIndex === -1) {
+        return [newPost, ...updatedPosts];
+      } else {
+        updatedPosts[postIndex] = {
+          ...updatedPosts[postIndex],
+          ...newPost,
+        };
+      }
+      return updatedPosts;
+    })
+  }
+
+  const handleComments = (Comment: Comment | undefined) => {
+    if(!Comment) return;
+    setPosts(prev => {
+      const postIndex = prev.findIndex(curPost => curPost._id === Comment.post);
       if (postIndex === -1) return prev;
       const updatedPosts = [...prev];
-      updatedPosts[postIndex] = {
-        ...updatedPosts[postIndex],
-        ...newPost,
-      };
+      const commentIndex = updatedPosts[postIndex].comments.findIndex((comment: Comment) => comment._id === Comment._id);
+      if (commentIndex !== -1) {
+        updatedPosts[postIndex].comments[commentIndex] = {...updatedPosts[postIndex].comments[commentIndex], ...Comment};
+      } else {
+        updatedPosts[postIndex].comments.push(Comment);
+      }
       return updatedPosts;
     })
   }
@@ -98,7 +72,7 @@ const PostFeed: React.FC = () => {
       <h2 className="text-xl font-semibold font-threadly">Your Feed</h2>
 
       {/* Create Post Card */}
-      <PostCard mode="create" />
+      <PostCard mode="create" handlePostUpdates={handlePostUpdates} />
 
       {/* Post list */}
       <InfiniteScroll
@@ -109,7 +83,7 @@ const PostFeed: React.FC = () => {
         endMessage={<p className="text-center text-gray-500">No more posts</p>}
       >
         {posts.map((post) => (
-          <PostCard key={post._id} mode="view" handlePostUpdates={handlePostUpdates} post={post} socket={socket} />
+          <PostCard key={post._id} mode="view" handleComments={handleComments} handlePostUpdates={handlePostUpdates} post={post} socket={socket} />
         ))}
       </InfiniteScroll>
 

@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { FormBuilderProps } from '../../types/formBuilderTypes';
 import type { DefaultValues } from 'react-hook-form';
-import toast from 'react-hot-toast';
 
 export function FormBuilder<T extends Record<string, any>>({
   schema,
@@ -15,6 +14,7 @@ export function FormBuilder<T extends Record<string, any>>({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<T>({
     resolver: zodResolver(schema),
@@ -23,7 +23,12 @@ export function FormBuilder<T extends Record<string, any>>({
 
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={handleSubmit(async (data) => {
+      await onSubmit(data); // first run the provided onSubmit logic
+      reset(); // then clear the form
+    })}
+    className="space-y-6">
       {config.map((field) => (
         <div key={field.name as string} className="space-y-1">
           <label htmlFor={field.name} className="block text-sm font-medium text-threadly-text">

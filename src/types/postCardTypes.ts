@@ -1,3 +1,4 @@
+import { create } from 'zustand';
 import type { Socket } from "socket.io-client";
 
 
@@ -8,10 +9,13 @@ type PostUser ={
 }
 
 type Comment = {
-    id: string;
+    _id: string;
     author: PostUser;
     content: string;
     likes: string[];
+    post: string;
+    createdAt: string;
+    replies?: Comment[];
 };
 
 export type Post = {
@@ -21,6 +25,7 @@ export type Post = {
     images: string[];
     likes: PostUser[];
     comments?: Comment[];
+    createdAt: string;
     isLikedByUser?: boolean;
 };
 
@@ -32,4 +37,5 @@ export type PostCardProps = {
     post?: Post;
     socket?: Socket| null;
     handlePostUpdates?: (post: Post) => void;
+    handleComments?: (comment: Comment) => void;
 };

@@ -20,11 +20,9 @@ export const SocketContextProvider = ({ children }: { children: ReactNode }) => 
 
   const token = useAuthStore.getState().token;
   const isAuthenticated = useAuthStore.getState().isAuthenticated;
-  console.log("Reder SocketContextProvider")
 
   useEffect(() => {
     if (isAuthenticated && token && !socket) {
-      console.log("Rerender SocketContextProvider useEffect", isAuthenticated, token, socket);
       const newSocket = io(SOCKET_URL, {
         auth: {
           token: token, // or whatever your API uses to identify users

@@ -7,10 +7,16 @@ import { uploadImages } from '../../lib/cloudnary/uploadImages';
 import { normalizeCloudinaryUrls } from '../../utils/normalizeUploadResult';
 import toast from 'react-hot-toast';
 import { createPost } from '../../services/postService';
-import { useAuthStore } from '../../stores/useAuthStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import CommentsModal from '../Modals/CommentModal';
+import Timestamp from '../UI/Timestamp';
+import type { CommentFormType } from '../../schemas/commentSchema';
+import LikesModal from '../Modals/LikesModal';
 
-const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, socket, handlePostUpdates }) => {
+const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, socket, handlePostUpdates, handleComments }) => {
+  const [openCommentsModal, setOpenCommentsModal] = useState(false);
+    const [showLikesModal, setShowLikesModal] = useState(false);
+
     if (mode === 'create'){
         const onSubmit = async (data: { caption: string; images: File[] }) => {
           const files = data.images;
@@ -35,8 +41,12 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
 
         }).finally(() => toast.dismiss());
         if(response.success){
-            // Handle successful post creation (e.g., update state, navigate, etc.)
-            console.log("Post created successfully:", response);
+          if (handlePostUpdates) {
+            console.log(response)
+            handlePostUpdates(response.data.data);
+          }
+          } else {
+            return response.sucess;
           }
       }
         return (
@@ -55,6 +65,11 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
 
   if (!post) return null;
 
+  const handleShowComment = () => {
+    setOpenCommentsModal(true);
+    
+  }
+
   const handleLikePost = () => {
     if (!socket) return;
 
@@ -62,8 +77,30 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
       postId: post._id,
     });
 
-    console.log("👍 Like emitted:", { postId: post._id });
   }
+    const handleAddComment = (data: CommentFormType) => {
+    if (!socket) return;
+    socket.emit('create:comment', {
+      content: data.content,
+      postId: post._id,
+    });
+  };
+
+  const handleAddReply = (data: CommentFormType, parentId: string) => {
+    console.log('New reply to:', parentId, 'Reply data:', data);
+    if(!socket) return;
+    socket.emit('create:comment', {
+        content: data.content,
+        postId: post._id,
+        parentId: parentId,
+    }) 
+   };
+
+  const handleLikeComment = (commentId: string) => {
+    if (!socket) return;
+    socket.emit('like:comment', { commentId });
+  };
+
 
   useEffect(() => {
     if (!socket) return;
@@ -76,8 +113,25 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
       }
     });
 
+    socket.on("comment:liked", (data)=>{
+      if(data.success && data.data){
+      if(handleComments) {
+        handleComments(data.data);
+      }}
+    })
+
+    socket.on("comment:created", (data) => {
+      if(data.success && data.data){
+        if(handleComments) {
+          handleComments(data.data);
+        }
+      }
+    })
+
     return () => {
       socket.off("post:liked");
+      socket.off("comment:liked");
+      socket.off("comment:created");
     } 
   },[]);
 
@@ -88,6 +142,7 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
   return (
     <div className="bg-neutral-100 rounded-lg shadow p-4 my-2 space-y-4 font-threadly text-threadly-text">
       {header ?? (
+        <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img
             src={post.author.profilePicture}
@@ -95,6 +150,8 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
             className="w-10 h-10 rounded-full"
           />
           <span className="font-semibold">{post.author.username}</span>
+        </div>
+          <Timestamp createdAt={post.createdAt} />
         </div>
       )}
 
@@ -119,8 +176,8 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
       {footer ?? (
         <div className="space-y-2">
           <div className="flex justify-between text-sm text-threadly-muted">
-            <span>{post.likes.length || 0} Likes</span>
-            <span>{post?.comments ? post?.comments.length : 0} Comments</span>
+            <span onClick={() => setShowLikesModal(true)}>{post.likes.length || 0} Likes</span>
+            <span onClick={handleShowComment} >{post?.comments ? post?.comments.length : 0} Comments</span>
           </div>
 
           <div className="flex gap-4">
@@ -128,7 +185,7 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
               <Heart className={`w-4 h-4 ${post.isLikedByUser? "fill-red-500 text-red-500" : ""}`} />
               Like
             </button>
-            <button className="flex items-center gap-1 text-sm hover:text-threadly-primary">
+            <button onClick={handleShowComment} className="flex items-center gap-1 text-sm hover:text-threadly-primary">
               <MessageCircle className="w-4 h-4" />
               Comment
             </button>
@@ -142,12 +199,27 @@ const PostCard: React.FC<PostCardProps> = ({ mode, header, body, footer, post, s
               </div>
               <p>{mostLikedComment.content}</p>
               <div className="flex gap-3 mt-1 text-xs text-threadly-primary">
-                <button>Like</button>
+                <button >Like</button>
                 <button>Reply</button>
               </div>
             </div>
           )}
         </div>
+      )}
+      {openCommentsModal && <CommentsModal
+        socket={socket}
+        onClose={() => setOpenCommentsModal(false)}
+        comments={post.comments || []}
+        postId={post._id}
+        handleAddComment={handleAddComment}
+        handleAddReply={handleAddReply}
+        handleLikeComment={handleLikeComment}
+        />}
+        {showLikesModal && (
+        <LikesModal
+          postId={post._id}
+          onClose={() => setShowLikesModal(false)}
+        />
       )}
     </div>
   );

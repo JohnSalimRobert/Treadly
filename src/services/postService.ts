@@ -19,3 +19,8 @@ export const fetchPosts = async ({ limit = 10, cursor }: { limit?: number; curso
   const response = await axiosService.get('/post/list', { params });
   return response.data;
 };
+
+export const fetchUsersWhoLikedPost = async (postId: string) => {
+  const response = await axiosService.post('/user/liked', { postId });
+  return response.data;
+};

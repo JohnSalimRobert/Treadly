@@ -16,7 +16,7 @@ const Navbar: React.FC = () => {
     <div className="bg-[var(--color-threadly-primary)] text-white flex justify-between items-center px-6 py-4 shadow-md font-[var(--font-threadly)]">
       <h1 className="text-xl font-bold tracking-wide">Threadly</h1>
       <div>
-        <Link to="/feed" className={navStyle('/')}>
+        <Link to="/" className={navStyle('/')}>
           My Feed
         </Link>
         <Link to="/profile" className={navStyle('/profile')}>
